@@ -20,7 +20,7 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
-
+    if message.content:
+        print(message.content)
+        await message.channel.send(f"you have send the message {message.content} and more thing darling fuck you")
 client.run(os.getenv('TOKEN'))
