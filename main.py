@@ -1,7 +1,9 @@
 
 import discord
 import os
+import google.generativeai as palm
 from dotenv import load_dotenv
+from persona import persona
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -10,17 +12,45 @@ client = discord.Client(intents=intents)
 load_dotenv()
 
 
-@client.event
-async def on_ready():
-    print(f'We have logged in as {client.user}')
+def main():
+    palm.configure(api_key=os.getenv('BARD_APIKEY'))
+    models = [m for m in palm.list_models(
+    ) if 'generateText' in m.supported_generation_methods]
+    model = models[0].name
+
+    async def get_reply(content):
+        prompt = persona(content)
+        completion = palm.generate_text(
+            model=model,
+            prompt=prompt,
+            temperature=0,
+            max_output_tokens=800,
+        )
+
+        if completion:
+            return completion.result
+        else:
+            return "ask me properly or ask me later fellow struggler"
+
+    @client.event
+    async def on_ready():
+        print(f'We have logged in as {client.user}')
+
+    @client.event
+    async def on_message(message):
+        if message.author == client.user:
+            return
+
+        if not message.content.strip():
+            return
+        # reply = get_reply(message.content)
+
+        reply = await get_reply(message.content)
+        print(reply)
+        await message.channel.send(reply)
+
+    client.run(os.getenv('TOKEN'))
 
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content:
-        print(message.content)
-        await message.channel.send(f"you have send the message {message.content} and more thing darling fuck you")
-client.run(os.getenv('TOKEN'))
+if __name__ == "__main__":
+    main()
