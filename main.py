@@ -27,9 +27,11 @@ def main():
             max_output_tokens=800,
         )
 
-        if completion:
+        if completion.result:
+            print(completion)
             return completion.result
         else:
+            print(completion)
             return "ask me properly or ask me later fellow struggler"
 
     @client.event
