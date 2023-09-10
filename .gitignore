@@ -1,3 +1,4 @@
 .env
 aiwaifuenv/
 .vscode/
+__pycache__/
